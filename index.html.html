@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ride Sharing App</title>
+    <style>
+        /* Reset default margin and padding */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Color theme */
+        :root {
+            --dark-bg: #2d2d2d;
+            --light-bg: #f7f7f7;
+            --primary-color: #d4a373;
+            --secondary-color: #6d6d6d;
+            --text-color: #ffffff;
+            --heading-color: #d4a373;
+        }
+
+        /* Body styles */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Container styles */
+        .container {
+            max-width: 600px;
+            background-color: var(--light-bg);
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 20px;
+            color: var(--secondary-color);
+        }
+
+        /* Heading styles */
+        h1 {
+            text-align: center;
+            color: var(--heading-color);
+            margin-bottom: 20px;
+        }
+
+        /* City selection styles */
+        .city-select, .new-city {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .city-select .city-button {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+
+        .city-select .city-button:hover {
+            background-color: var(--heading-color);
+        }
+
+        .city-select .city-button .delete-city {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.2em;
+            display: none;
+            cursor: pointer;
+        }
+
+        .city-select .city-button:hover .delete-city {
+            display: block;
+        }
+
+        .new-city input {
+            padding: 10px;
+            font-size: 1em;
+            border: 1px solid var(--secondary-color);
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+
+        .new-city button {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            margin: 5px;
+        }
+
+        .new-city button:hover {
+            background-color: var(--heading-color);
+        }
+
+        /* Form styles */
+        .post-ride-form {
+            display: none; /* Initially hidden */
+            background-color: var(--light-bg);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .post-ride-form.active {
+            display: block; /* Display when active */
+        }
+
+        .post-ride-form h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: var(--heading-color);
+        }
+
+        .post-ride-form label {
+            display: block;
+            margin: 10px 0;
+            color: var(--secondary-color);
+        }
+
+        .post-ride-form input[type=text],
+        .post-ride-form input[type=date],
+        .post-ride-form input[type=time],
+        .post-ride-form input[type=number] {
+            width: 100%;
+            padding: 8px;
+            font-size: 1em;
+            border: 1px solid var(--secondary-color);
+            border-radius: 4px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .post-ride-form textarea {
+            width: 100%;
+            padding: 8px;
+            font-size: 1em;
+            border: 1px solid var(--secondary-color);
+            border-radius: 4px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+            resize: vertical;
+        }
+
+        .post-ride-form button {
+            display: block;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .post-ride-form button:hover {
+            background-color: var(--heading-color);
+        }
+
+        /* Ride listings styles */
+        .available-rides {
+            display: none; /* Initially hidden */
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .available-rides.active {
+            display: block; /* Display when active */
+        }
+
+        .ride-post {
+            background-color: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: var(--secondary-color);
+        }
+
+        .ride-post h3 {
+            margin-bottom: 10px;
+            color: var(--heading-color);
+        }
+
+        .ride-post p {
+            margin-bottom: 5px;
+            color: var(--secondary-color);
+        }
+
+        .ride-post button {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 8px 15px;
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .ride-post button:hover {
+            background-color: var(--heading-color);
+        }
+
+        .ride-post .delete-ride {
+            margin-left: 10px;
+            background-color: #ff4b4b;
+        }
+
+        .ride-post .delete-ride:hover {
+            background-color: #e60000;
+        }
+
+        .contact-field {
+            display: flex;
+            align-items: center;
+        }
+
+        .contact-field select {
+            padding: 8px;
+            font-size: 1em;
+            border: 1px solid var(--secondary-color);
+            border-radius: 4px 0 0 4px;
+        }
+
+        .contact-field input {
+            flex: 1;
+            padding: 8px;
+            font-size: 1em;
+            border: 1px solid var(--secondary-color);
+            border-radius: 0 4px 4px 0;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .ride-date-picker {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .ride-date-picker input {
+            padding: 8px;
+            font-size: 1em;
+            border: 1px solid var(--secondary-color);
+            border-radius: 4px;
+            text-align: center;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .ride-date-picker input:hover {
+            background-color: var(--heading-color);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Ride Sharing App</h1>
+
+        <!-- City selection buttons -->
+        <div class="city-select" id="citySelect"></div>
+
+        <!-- Add new city -->
+        <div class="new-city" id="newCity">
+            <input type="text" id="newCityName" placeholder="Enter new city name">
+            <button onclick="addNewCity()">Add City</button>
+        </div>
+
+        <!-- Placeholder for forms and available rides -->
+        <div id="cityForms"></div>
+    </div>
+
+    <script>
+        const defaultCities = ['Brantford', 'Kitchener', 'Toronto', 'Mississauga', 'Cambridge'];
+        let cityRides = JSON.parse(localStorage.getItem('cityRides')) || {};
+        let cityList = JSON.parse(localStorage.getItem('cityList')) || defaultCities;
+        const adminPassword = '0000';
+
+        function saveDataToLocalStorage() {
+            localStorage.setItem('cityRides', JSON.stringify(cityRides));
+            localStorage.setItem('cityList', JSON.stringify(cityList));
+        }
+
+        function promptAdminPassword(callback, ...args) {
+            const password = prompt("Enter admin password:");
+            if (password === adminPassword) {
+                callback(...args);
+            } else {
+                alert("Incorrect password. Access denied.");
+            }
+        }
+
+        function toggleCity(city) {
+            document.querySelectorAll('.post-ride-form').forEach(form => form.classList.remove('active'));
+            document.querySelectorAll('.available-rides').forEach(rides => rides.classList.remove('active'));
+
+            document.getElementById(`postRideForm${city}`).classList.add('active');
+            document.getElementById(`availableRides${city}`).classList.add('active');
+            
+            const currentDate = new Date().toISOString().split('T')[0];
+            document.getElementById(`rideDate${city}`).value = currentDate;
+            displayRides(city, currentDate);
+        }
+
+        function displayRides(city, selectedDate) {
+            const ridesContainer = document.getElementById(`availableRides${city}`);
+            ridesContainer.innerHTML = '';
+
+            if (!cityRides[city]) {
+                cityRides[city] = [];
+            }
+
+            cityRides[city].filter(ride => ride.date === selectedDate).forEach((ride, index) => {
+                const rideDiv = document.createElement('div');
+                rideDiv.classList.add('ride-post');
+                rideDiv.innerHTML = `
+                    <h3>Ride ${index + 1}</h3>
+                    <p><strong>Start:</strong> ${ride.start}</p>
+                    <p><strong>End:</strong> ${ride.end}</p>
+                    <p><strong>Date:</strong> ${ride.date}</p>
+                    <p><strong>Time:</strong> ${ride.time}</p>
+                    <p><strong>Charge:</strong> $${ride.charge.toFixed(2)}</p>
+                    <p><strong>Details:</strong><br>${ride.details}</p>
+                    <p><strong>Contact:</strong> <a href="https://wa.me/${ride.countryCode}${ride.contact}" target="_blank">${ride.countryCode}${ride.contact}</a></p>
+                    <p><strong>Posted:</strong> ${getTimeSincePosted(ride.postedTime)}</p>
+                    <button onclick="requestRide('${city}', ${index})">Request Ride</button>
+                    <button class="delete-ride" onclick="promptAdminPassword(deleteRide, '${city}', ${index})">Delete Ride</button>
+                `;
+                ridesContainer.appendChild(rideDiv);
+            });
+        }
+
+        function getTimeSincePosted(postedTime) {
+            const now = new Date();
+            const postedDate = new Date(postedTime);
+            const diffInMinutes = Math.floor((now - postedDate) / 1000 / 60);
+
+            if (diffInMinutes < 60) {
+                return `${diffInMinutes} minutes ago`;
+            } else {
+                const diffInHours = Math.floor(diffInMinutes / 60);
+                return `${diffInHours} hours ago`;
+            }
+        }
+
+        function requestRide(city, index) {
+            const contactLink = `https://wa.me/${cityRides[city][index].countryCode}${cityRides[city][index].contact}`;
+            window.open(contactLink, '_blank');
+        }
+
+        function deleteRide(city, index) {
+            const now = new Date();
+            const rideTime = new Date(`${cityRides[city][index].date}T${cityRides[city][index].time}`);
+
+            if (now > rideTime) {
+                cityRides[city].splice(index, 1);
+                saveDataToLocalStorage();
+                displayRides(city, document.getElementById(`rideDate${city}`).value);
+            } else {
+                alert("Cannot delete a ride before its scheduled time.");
+            }
+        }
+
+        function addFormSubmitListener(form) {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const city = this.id.replace('postRideForm', '');
+                const start = document.getElementById(`start${city}`).value;
+                const end = document.getElementById(`end${city}`).value;
+                const date = document.getElementById(`date${city}`).value;
+                const time = document.getElementById(`time${city}`).value;
+                const charge = parseFloat(document.getElementById(`charge${city}`).value);
+                const details = document.getElementById(`details${city}`).value;
+                const countryCode = document.getElementById(`countryCode${city}`).value;
+                const contact = document.getElementById(`contact${city}`).value;
+                const postedTime = new Date().toISOString();
+
+                if (!cityRides[city]) {
+                    cityRides[city] = [];
+                }
+
+                cityRides[city].push({ start, end, date, time, charge, details, countryCode, contact, postedTime });
+                saveDataToLocalStorage();
+                displayRides(city, date);
+                form.reset();
+            });
+        }
+
+        function addNewCity() {
+            const newCityName = document.getElementById('newCityName').value.trim();
+            if (newCityName && !cityRides.hasOwnProperty(newCityName)) {
+                cityRides[newCityName] = [];
+                cityList.push(newCityName);
+                saveDataToLocalStorage();
+
+                createCityButton(newCityName);
+                createCityFormAndRides(newCityName);
+
+                document.getElementById('newCityName').value = '';
+            }
+        }
+
+        function deleteCity(city) {
+            const index = cityList.indexOf(city);
+            if (index > -1) {
+                cityList.splice(index, 1);
+                delete cityRides[city];
+                saveDataToLocalStorage();
+                document.getElementById(`cityButton${city}`).remove();
+                document.getElementById(`postRideForm${city}`).remove();
+                document.getElementById(`availableRides${city}`).remove();
+            }
+        }
+
+        function createCityButton(city) {
+            const citySelect = document.getElementById('citySelect');
+            const cityButtonDiv = document.createElement('div');
+            cityButtonDiv.classList.add('city-button');
+            cityButtonDiv.id = `cityButton${city}`;
+            cityButtonDiv.innerHTML = `
+                ${city}
+                <button class="delete-city" onclick="promptAdminPassword(deleteCity, '${city}')">&times;</button>
+            `;
+            cityButtonDiv.onclick = () => toggleCity(city);
+            citySelect.appendChild(cityButtonDiv);
+        }
+
+        function createCityFormAndRides(city) {
+            const cityForms = document.getElementById('cityForms');
+
+            const newCityForm = document.createElement('form');
+            newCityForm.id = `postRideForm${city}`;
+            newCityForm.classList.add('post-ride-form');
+            newCityForm.innerHTML = `
+                <h2>Post a Ride in ${city}</h2>
+                <label for="start${city}">Start Point:</label>
+                <input type="text" id="start${city}" name="start${city}" required><br><br>
+                <label for="end${city}">End Point:</label>
+                <input type="text" id="end${city}" name="end${city}" required><br><br>
+                <label for="date${city}">Date:</label>
+                <input type="date" id="date${city}" name="date${city}" required><br><br>
+                <label for="time${city}">Time:</label>
+                <input type="time" id="time${city}" name="time${city}" required><br><br>
+                <label for="charge${city}">Charge (CAD):</label>
+                <input type="number" id="charge${city}" name="charge${city}" min="0" step="0.01" required><br><br>
+                <label for="details${city}">Additional Details:</label>
+                <textarea id="details${city}" name="details${city}" rows="4"></textarea><br><br>
+                <label for="contact${city}">Contact Information:</label>
+                <div class="contact-field">
+                    <select id="countryCode${city}" name="countryCode${city}">
+                        <option value="1">+1 (USA)</option>
+                        <option value="44">+44 (UK)</option>
+                        <option value="91">+91 (India)</option>
+                        <!-- Add more country codes as needed -->
+                    </select>
+                    <input type="text" id="contact${city}" name="contact${city}" required>
+                </div><br><br>
+                <button type="submit">Post Ride</button>
+            `;
+            cityForms.appendChild(newCityForm);
+            addFormSubmitListener(newCityForm);
+
+            const newCityRides = document.createElement('div');
+            newCityRides.id = `availableRides${city}`;
+            newCityRides.classList.add('available-rides');
+            newCityRides.innerHTML = `
+                <h2>Available Rides in ${city}</h2>
+                <div class="ride-date-picker">
+                    <label for="rideDate${city}">Select Date: </label>
+                    <input type="date" id="rideDate${city}" name="rideDate${city}" onchange="displayRides('${city}', this.value)">
+                </div>`;
+            cityForms.appendChild(newCityRides);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            cityList.forEach(city => {
+                createCityButton(city);
+                createCityFormAndRides(city);
+            });
+
+            if (cityList.length > 0) {
+                toggleCity(cityList[0]);
+            }
+        });
+    </script>
+</body>
+</html>
